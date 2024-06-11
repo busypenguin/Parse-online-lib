@@ -65,5 +65,12 @@ for num_book in range(1, 11):
         book_image_name = os.path.basename(parsed_url.path)
         image_ = download_image(imagepath, book_image_name)
 
+        comments = soup.find(id='content').find_all(class_='black')
+        print(book_name)
+        print('')
+        for comment in comments:
+            comment_text = comment.text
+            print(comment_text)
+
     except requests.exceptions.HTTPError:
         continue
