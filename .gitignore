@@ -153,3 +153,5 @@ cython_debug/
 book1.txt
 dvmn.svg
 /books*
+*.gif
+*.jpg
