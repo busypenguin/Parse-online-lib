@@ -2,7 +2,7 @@ import requests
 import os
 from bs4 import BeautifulSoup
 from pathvalidate import sanitize_filename
-from urllib.parse import urljoin, urlparse, urlsplit, unquote
+from urllib.parse import urljoin, urlparse
 import argparse
 
 
@@ -42,6 +42,7 @@ def download_image(url, filename, folder='images/'):
     with open(filepath, 'wb') as file:
         file.write(response.content)
     return filepath
+
 
 def parse_book_page(num_book, response):
     response.raise_for_status()
