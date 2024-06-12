@@ -3,6 +3,7 @@ import os
 from bs4 import BeautifulSoup
 from pathvalidate import sanitize_filename
 from urllib.parse import urljoin, urlparse, urlsplit, unquote
+import argparse
 
 
 def check_for_redirect(response):
@@ -42,7 +43,6 @@ def download_image(url, filename, folder='images/'):
         file.write(response.content)
     return filepath
 
-
 def parse_book_page(num_book, response):
     response.raise_for_status()
     check_for_redirect(response)
@@ -76,18 +76,29 @@ def parse_book_page(num_book, response):
     return book_info
 
 
-for num_book in range(1, 11):
-    url_for_book_info = 'https://tululu.org/b{}/'.format(num_book)
-    url_for_download_book = 'https://tululu.org/txt.php?id={}'.format(num_book)
-    response_for_book_info = requests.get(url_for_book_info)
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+        description='Программа скачивает книги по их ID'
+    )
+    parser.add_argument("--start_id", help="ID первой книги", type=int, default=1)
+    parser.add_argument("--end_id", help="ID последней книги", type=int, default=10)
+    args = parser.parse_args()
+    start_id = args.start_id
+    end_id = args.end_id
+    print(start_id, end_id)
 
-    try:
-        filepath = download_txt(url_for_download_book, parse_book_page(num_book, response_for_book_info)['Название'])
+    for num_book in range(start_id, end_id+1):
+        url_for_book_info = 'https://tululu.org/b{}/'.format(num_book)
+        url_for_download_book = 'https://tululu.org/txt.php?id={}'.format(num_book)
+        response_for_book_info = requests.get(url_for_book_info)
 
-        imagepath = urljoin('https://tululu.org/', parse_book_page(num_book, response_for_book_info)['Картинка книги'])
-        parsed_url = urlparse(imagepath)
-        book_image_name = os.path.basename(parsed_url.path)
-        book_image = download_image(imagepath, book_image_name)
+        try:
+            filepath = download_txt(url_for_download_book, parse_book_page(num_book, response_for_book_info)['Название'])
 
-    except requests.exceptions.HTTPError:
-        continue
+            imagepath = urljoin('https://tululu.org/', parse_book_page(num_book, response_for_book_info)['Картинка книги'])
+            parsed_url = urlparse(imagepath)
+            book_image_name = os.path.basename(parsed_url.path)
+            book_image = download_image(imagepath, book_image_name)
+
+        except requests.exceptions.HTTPError:
+            continue
