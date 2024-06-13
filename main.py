@@ -11,16 +11,8 @@ def check_for_redirect(response):
         raise requests.exceptions.HTTPError()
 
 
-def download_txt(url, filename, folder='books/'):
-    """Функция для скачивания текстовых файлов.
-    Args:
-        url (str): Cсылка на текст, который хочется скачать.
-        filename (str): Имя файла, с которым сохранять.
-        folder (str): Папка, куда сохранять.
-    Returns:
-        str: Путь до файла, куда сохранён текст.
-    """
-    response = requests.get(url)
+def download_txt(url, payload, filename, folder='books/'):
+    response = requests.get(url, params=payload)
     response.raise_for_status()
     filename = sanitize_filename(filename)
     os.makedirs(folder, exist_ok=True)
@@ -45,8 +37,6 @@ def download_image(url, filename, folder='images/'):
 
 
 def parse_book_page(book_num, response):
-    response.raise_for_status()
-    check_for_redirect(response)
     soup = BeautifulSoup(response.text, 'lxml')
     book_and_author = soup.find('table').find(class_='ow_px_td').find('h1')
     book_and_author_text = book_and_author.text
@@ -55,8 +45,6 @@ def parse_book_page(book_num, response):
     book_image_path = soup.find(class_='bookimage').find('img')['src']
     imagepath = urljoin('https://tululu.org/', book_image_path)
     parsed_url = urlparse(imagepath)
-    book_image_name = os.path.basename(parsed_url.path)
-    book_image_path = download_image(imagepath, book_image_name)
 
     comments = soup.find(id='content').find_all(class_='black')
     all_comments = []
@@ -69,10 +57,10 @@ def parse_book_page(book_num, response):
     for el in genres:
         genre = el.text
         all_genres.append(genre)
-    
+
     book = {
         'Название': book_name,
-        'Картинка книги': book_image_path,
+        'Картинка книги': parsed_url.path,
         'Комментарии': all_comments,
         'Жанр': all_genres,
     }
@@ -91,16 +79,20 @@ if __name__ == '__main__':
 
     for book_num in range(start_id, end_id+1):
         url_for_book = 'https://tululu.org/b{}/'.format(book_num)
-        url_for_download_book = 'https://tululu.org/txt.php?id={}'.format(book_num)
+        url_for_download_book = 'https://tululu.org/txt.php'
+        payload = {'id': book_num}
         response_for_book = requests.get(url_for_book)
+        response_for_book.raise_for_status()
 
         try:
-            filepath = download_txt(url_for_download_book, parse_book_page(book_num, response_for_book)['Название'])
+            check_for_redirect(response_for_book)
+            book = parse_book_page(book_num, response_for_book)
+            filepath = download_txt(url_for_download_book, payload, book['Название'])
 
-            imagepath = urljoin('https://tululu.org/', parse_book_page(book_num, response_for_book)['Картинка книги'])
-            parsed_url = urlparse(imagepath)
+            image_url = urljoin('https://tululu.org/', book['Картинка книги'])
+            parsed_url = urlparse(image_url)
             book_image_name = os.path.basename(parsed_url.path)
-            book_image_path = download_image(imagepath, book_image_name)
+            book_image_path = download_image(image_url, book_image_name)
 
         except requests.exceptions.HTTPError:
             continue
