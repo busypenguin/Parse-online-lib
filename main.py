@@ -89,10 +89,10 @@ if __name__ == '__main__':
             book = parse_book_page(book_num, response_for_book)
             filepath = download_txt(url_for_download_book, payload, book['Название'])
 
-            image_url = urljoin('https://tululu.org/', book['Картинка книги'])
+            image_url = urljoin('https://tululu.org', book['Картинка книги'])
             parsed_url = urlparse(image_url)
             book_image_name = os.path.basename(parsed_url.path)
             book_image_path = download_image(image_url, book_image_name)
 
-        except requests.exceptions.HTTPError:
+        except requests.exceptions.HTTPError and requests.exceptions.HTTPError and requests.exceptions.ConnectionError:
             continue
