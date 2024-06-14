@@ -47,16 +47,10 @@ def parse_book_page(book_num, response):
     parsed_url = urlparse(imagepath)
 
     comments = soup.find(id='content').find_all(class_='black')
-    all_comments = []
-    for comment in comments:
-        comment_text = comment.text
-        all_comments.append(comment_text)
+    all_comments = [comment.text for comment in comments]
 
     genres = soup.find(id='content').find('span', class_='d_book').find_all('a')
-    all_genres = []
-    for el in genres:
-        genre = el.text
-        all_genres.append(genre)
+    all_genres = [genre.text for genre in genres]
 
     book = {
         'Название': book_name,
