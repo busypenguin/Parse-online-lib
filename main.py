@@ -53,10 +53,10 @@ def parse_book_page(book_num, response):
     all_genres = [genre.text for genre in genres]
 
     book = {
-        'Название': book_name,
-        'Картинка книги': parsed_url.path,
-        'Комментарии': all_comments,
-        'Жанр': all_genres,
+        'book_name': book_name,
+        'book_img': parsed_url.path,
+        'comments': all_comments,
+        'genre': all_genres,
     }
     return book
 
@@ -81,9 +81,9 @@ if __name__ == '__main__':
         try:
             check_for_redirect(response_for_book)
             book = parse_book_page(book_num, response_for_book)
-            filepath = download_txt(url_for_download_book, payload, book['Название'])
+            filepath = download_txt(url_for_download_book, payload, book['book_name'])
 
-            image_url = urljoin('https://tululu.org', book['Картинка книги'])
+            image_url = urljoin('https://tululu.org', book['book_img'])
             parsed_url = urlparse(image_url)
             book_image_name = os.path.basename(parsed_url.path)
             book_image_path = download_image(image_url, book_image_name)
