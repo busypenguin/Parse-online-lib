@@ -42,9 +42,9 @@ def parse_book_page(book_num, response):
     book_and_author_text = book_and_author.text
     splited_book_and_author_text = book_and_author_text.split(' :: ')
     book_name = (f'{book_num}. {splited_book_and_author_text[0].strip()}')
-    book_image_path = soup.find(class_='bookimage').find('img')['src']
-    imagepath = urljoin('https://tululu.org/', book_image_path)
-    parsed_url = urlparse(imagepath)
+    book_image_url = soup.find(class_='bookimage').find('img')['src']
+    image_url = urljoin('https://tululu.org/', book_image_url)
+    parsed_url = urlparse(image_url)
 
     comments = soup.find(id='content').find_all(class_='black')
     all_comments = [comment.text for comment in comments]
