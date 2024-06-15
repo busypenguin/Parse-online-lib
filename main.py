@@ -72,16 +72,16 @@ if __name__ == '__main__':
     end_id = args.end_id
 
     for book_num in range(start_id, end_id+1):
-        url_for_book = 'https://tululu.org/b{}/'.format(book_num)
-        url_for_download_book = 'https://tululu.org/txt.php'
+        book_url = 'https://tululu.org/b{}/'.format(book_num)
+        download_book_url = 'https://tululu.org/txt.php'
         payload = {'id': book_num}
-        response_for_book = requests.get(url_for_book)
-        response_for_book.raise_for_status()
+        book_response = requests.get(book_url)
+        book_response.raise_for_status()
 
         try:
-            check_for_redirect(response_for_book)
-            book = parse_book_page(book_num, response_for_book)
-            filepath = download_txt(url_for_download_book, payload, book['book_name'])
+            check_for_redirect(book_response)
+            book = parse_book_page(book_num, book_response)
+            filepath = download_txt(download_book_url, payload, book['book_name'])
 
             image_url = urljoin('https://tululu.org', book['book_img'])
             parsed_url = urlparse(image_url)
