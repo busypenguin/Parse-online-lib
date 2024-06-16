@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 from pathvalidate import sanitize_filename
 from urllib.parse import urljoin, urlparse
 import argparse
+from time import sleep
 
 
 def check_for_redirect(response):
@@ -43,7 +44,7 @@ def parse_book_page(book_num, response):
     splited_book_and_author_text = book_and_author_text.split(' :: ')
     book_name = (f'{book_num}. {splited_book_and_author_text[0].strip()}')
     book_image_url = soup.find(class_='bookimage').find('img')['src']
-    image_url = urljoin('https://tululu.org/', book_image_url)
+    image_url = urljoin('https://tululu.org', book_image_url)
     parsed_url = urlparse(image_url)
 
     comments = soup.find(id='content').find_all(class_='black')
@@ -75,10 +76,10 @@ if __name__ == '__main__':
         book_url = 'https://tululu.org/b{}/'.format(book_num)
         download_book_url = 'https://tululu.org/txt.php'
         payload = {'id': book_num}
-        book_response = requests.get(book_url)
-        book_response.raise_for_status()
 
         try:
+            book_response = requests.get(book_url)
+            book_response.raise_for_status()
             check_for_redirect(book_response)
             book = parse_book_page(book_num, book_response)
             filepath = download_txt(download_book_url, payload, book['book_name'])
@@ -88,5 +89,11 @@ if __name__ == '__main__':
             book_image_name = os.path.basename(parsed_url.path)
             book_image_path = download_image(image_url, book_image_name)
 
-        except requests.exceptions.HTTPError and requests.exceptions.HTTPError and requests.exceptions.ConnectionError:
+        except requests.exceptions.HTTPError:
+            print(f'Книги с номером {book_num} не существует')
+            continue
+
+        except requests.exceptions.ConnectionError:
+            print('Отсутствует подключение к интернету')
+            sleep(5)
             continue
