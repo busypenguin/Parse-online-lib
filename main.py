@@ -19,7 +19,7 @@ def download_txt(url, payload, filename, folder='books/'):
     os.makedirs(folder, exist_ok=True)
 
     check_for_redirect(response)
-    filepath = os.path.join(folder, filename)+'.txt'
+    filepath = f'{os.path.join(folder, filename)}.txt'
     with open(filepath, 'wb') as file:
         file.write(response.content)
 
