@@ -58,6 +58,7 @@ def parse_book_page(book_num, response):
         'book_img': parsed_url.path,
         'comments': all_comments,
         'genre': all_genres,
+        'image_url': image_url
     }
     return book
 
@@ -84,10 +85,8 @@ if __name__ == '__main__':
             book = parse_book_page(book_num, book_response)
             filepath = download_txt(download_book_url, payload, book['book_name'])
 
-            image_url = urljoin('https://tululu.org', book['book_img'])
-            parsed_url = urlparse(image_url)
-            book_image_name = os.path.basename(parsed_url.path)
-            book_image_path = download_image(image_url, book_image_name)
+            book_image_name = os.path.basename(book['book_img'])
+            book_image_path = download_image(book['image_url'], book_image_name)
 
         except requests.exceptions.HTTPError:
             print(f'Книги с номером {book_num} не существует')
